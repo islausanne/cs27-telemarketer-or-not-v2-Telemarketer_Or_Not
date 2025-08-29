@@ -1,0 +1,107 @@
+name: Autograding Tests (min)
+on:
+  - push
+  - workflow_dispatch
+  - repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: "Test 1: Sample ignore (9 6 6 8)"
+      id: t1
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: CCC18J1 T1
+        command: python3 solution.py
+        input: |
+          9
+          6
+          6
+          8
+        expected-output: ignore
+        comparison-method: included
+        timeout: 2
+        max-score: 1
+
+    - name: "Test 2: First digit not 8/9 -> answer (5 6 6 8)"
+      id: t2
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: CCC18J1 T2
+        command: python3 solution.py
+        input: |
+          5
+          6
+          6
+          8
+        expected-output: answer
+        comparison-method: included
+        timeout: 2
+        max-score: 1
+
+    - name: "Test 3: Last digit not 8/9 -> answer (8 6 6 7)"
+      id: t3
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: CCC18J1 T3
+        command: python3 solution.py
+        input: |
+          8
+          6
+          6
+          7
+        expected-output: answer
+        comparison-method: included
+        timeout: 2
+        max-score: 1
+
+    - name: "Test 4: Middle digits differ -> answer (8 4 5 9)"
+      id: t4
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: CCC18J1 T4
+        command: python3 solution.py
+        input: |
+          8
+          4
+          5
+          9
+        expected-output: answer
+        comparison-method: included
+        timeout: 2
+        max-score: 1
+
+    - name: "Test 5: Edge: many 9s -> ignore (9 0 0 9)"
+      id: t5
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: CCC18J1 T5
+        command: python3 solution.py
+        input: |
+          9
+          0
+          0
+          9
+        expected-output: ignore
+        comparison-method: included
+        timeout: 2
+        max-score: 1
+
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        T1_RESULTS: ${{ steps.t1.outputs.result }}
+        T2_RESULTS: ${{ steps.t2.outputs.result }}
+        T3_RESULTS: ${{ steps.t3.outputs.result }}
+        T4_RESULTS: ${{ steps.t4.outputs.result }}
+        T5_RESULTS: ${{ steps.t5.outputs.result }}
+      with:
+        runners: t1,t2,t3,t4,t5
